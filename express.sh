@@ -67,29 +67,35 @@ npm install
 # index
 touch index.ts
 echo "
-import bodyParser from 'body-parser';
-import express, { Express } from 'express';
-import rootRouter from './routes/root/root';
-import dotenv from 'dotenv';
-
-const PORT: number = 3000;
-
 const onSuccess = function (): void {
     console.log(\`http://localhost:\${PORT}\`);
     console.log(\`Server is running on port \${PORT}\`);
 }
 
-try {
-    dotenv.config();
+async function start(): Promise<void> {
+  try {
     const app: Express = express();
-    app.use(bodyParser.json({limit: '500kb'}));    
-    app.use('/', rootRouter);
-    app.listen(PORT, onSuccess);
-} catch (error) {
-    console.log(error);
-}
-">>index.ts
+    const mongo: MongoClient = await MongoClient.connect(process.ENV.MONGO_URI);
+    await mongo.connect();
 
+    // add db to app
+    app.set('db', mongo.db('portfolio'));
+
+    app.use(bodyParser.json({ // Use bodyParser as middleware
+      limit: '500kb',
+    }));
+
+    // routes
+
+    app.listen(PORT, onSuccess);
+
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+start();
+">>index.ts
 
 mkdir controllers routes
 
