@@ -1,7 +1,7 @@
-touch package.json
+touch package.json .env
 echo '
 {
-  "name": "api",
+  "name": "express API",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -14,11 +14,13 @@ echo '
   "dependencies": {
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mongodb": "^6.5.0",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {
+    "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.6",
     "types": "^0.1.1",
@@ -67,7 +69,8 @@ touch index.ts
 echo "
 import bodyParser from 'body-parser';
 import express, { Express } from 'express';
-import rootRouter from './routes/root';
+import rootRouter from './routes/root/root';
+import dotenv from 'dotenv';
 
 const PORT: number = 3000;
 
@@ -77,6 +80,7 @@ const onSuccess = function (): void {
 }
 
 try {
+    dotenv.config();
     const app: Express = express();
     app.use(bodyParser.json({limit: '500kb'}));    
     app.use('/', rootRouter);
@@ -91,19 +95,21 @@ mkdir controllers routes
 
 # routes
 cd routes || exit
+mdkir root && cd root
 touch root.ts
 echo 'import {Router} from "express";
-import { getRootController } from "../controllers/getRoot";
+import { getRootController } from "../controllers/root/getRoot";
 
 const rootRouter: Router = Router();
 
 rootRouter.get("/", getRootController);
 
 export default rootRouter;' >>root.ts
-cd ../ || exit
+cd ../../ || exit
 
 # controllers
 cd controllers || exit
+mdkir root && cd root
 touch getRoot.ts
 echo 'import {Request, Response, NextFunction} from "express";
 
@@ -114,4 +120,4 @@ export async function getRootController(req: Request, res: Response, nextFn: Nex
         console.log(error);
     }
 }'>>getRoot.ts
-cd ../ || exit
+cd ../../ || exit
