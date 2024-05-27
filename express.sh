@@ -20,6 +20,7 @@ echo '
     "ts-node": "^10.9.2"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.6",
@@ -67,6 +68,17 @@ npm install
 # index
 touch index.ts
 echo "
+
+import bodyParser from 'body-parser';
+import express, {Express} from 'express';
+import rootRouter from './routes/root';
+import entriesRouter from './routes/entries';
+import {MongoClient} from 'mongodb';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
+const PORT: number = 3000;
+
 const onSuccess = function (): void {
     console.log(\`http://localhost:\${PORT}\`);
     console.log(\`Server is running on port \${PORT}\`);
@@ -75,10 +87,11 @@ const onSuccess = function (): void {
 async function start(): Promise<void> {
   try {
     const app: Express = express();
+    dotenv.config();
+    app.use(cors());
+    
     const mongo: MongoClient = await MongoClient.connect(process.ENV.MONGO_URI);
     await mongo.connect();
-
-    // add db to app
     app.set('db', mongo.db('portfolio'));
 
     app.use(bodyParser.json({ // Use bodyParser as middleware
@@ -101,7 +114,7 @@ mkdir controllers routes
 
 # routes
 cd routes || exit
-mdkir root && cd root
+mdkir root && cd root || exit
 touch root.ts
 echo 'import {Router} from "express";
 import { getRootController } from "../controllers/root/getRoot";
